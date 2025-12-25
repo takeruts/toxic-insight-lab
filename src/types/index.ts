@@ -21,7 +21,7 @@ export const DOCTORS: Record<string, DoctorType> = {
     name: "ナギ",
     role: "Senior Analyst / Shadow Specialist",
     image: "/dr_male.png",
-    greeting: "よう。君の中に溜まったその『毒』、僕に預けてみないか？ 綺麗に解剖してやるよ。",
+    greeting: "よう。君の中の素敵な『毒』、僕に預けてみないか？ 綺麗に分析するよ。",
     accentColor: "#06b6d4", // cyan-500
   },
   ryo: {
@@ -29,7 +29,7 @@ export const DOCTORS: Record<string, DoctorType> = {
     name: "リョウ",
     role: "Chief Director / Psycho-Architect",
     image: "/dr_female.png",
-    greeting: "いらっしゃい。あなたの美しい『闇』、詳しく聞かせてくださるかしら？ 遠慮はいらないわ。",
+    greeting: "いらっしゃい。あなたの素敵な『毒』、詳しく聞かせてくださるかしら？ 遠慮はいらないわ。",
     accentColor: "#6366f1", // indigo-500
   }
 };
