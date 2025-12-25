@@ -28,7 +28,7 @@ AIによる多層的な分析を導入することで、人間の精神の複雑
 
 ### 1. リポジトリをクローン
 ```bash
-git clone [https://github.com/あなたのユーザー名/toxic-insight-lab.git](https://github.com/あなたのユーザー名/toxic-insight-lab.git)
+git clone [https://github.com/takeruts/toxic-insight-lab.git](https://github.com/takeruts/toxic-insight-lab.git)
 cd toxic-insight-lab
 ```
 
