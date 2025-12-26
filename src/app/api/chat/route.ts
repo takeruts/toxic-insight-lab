@@ -1,4 +1,3 @@
-// src/app/api/chat/route.ts
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
@@ -57,9 +56,9 @@ export async function POST(req: Request) {
     ${phaseInstruction}
     `;
 
-    // 404エラーを回避するため、確実なモデル名（gemini-1.5-flash）を指定
+    // 安定稼働のために models/ を付与したモデル名を指定
     const model = genAI.getGenerativeModel({ 
-        model: "gemini-3-flash-preview", 
+        model: "models/gemini-1.5-flash", 
     });
     
     const result = await model.generateContent(`${systemPrompt}\n\nユーザーの毒: ${message}`);
@@ -69,6 +68,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ text });
   } catch (error: any) {
     console.error("Gemini API Error:", error);
-    return NextResponse.json({ error: error.message || "分析器がオーバーヒートしたわ。" }, { status: 500 });
+    return NextResponse.json({ error: "分析器がオーバーヒートしたわ。" }, { status: 500 });
   }
 }
