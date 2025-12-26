@@ -58,7 +58,7 @@ export async function POST(req: Request) {
 
     // 安定稼働のために models/ を付与したモデル名を指定
     const model = genAI.getGenerativeModel({ 
-        model: "models/gemini-1.5-flash", 
+        model: "models/gemini-3-flash-preview", 
     });
     
     const result = await model.generateContent(`${systemPrompt}\n\nユーザーの毒: ${message}`);
