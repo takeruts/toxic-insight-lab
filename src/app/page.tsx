@@ -5,6 +5,7 @@ import { useState } from "react";
 import { DoctorPortrait } from "@/components/DoctorPortrait";
 import { MessageWindow } from "@/components/MessageWindow";
 import { InputForm } from "@/components/InputForm";
+import { AnalyzingView } from "@/components/AnalyzingView";
 import { DOCTORS, DoctorType } from "@/types";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -21,14 +22,14 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [turnCount, setTurnCount] = useState(0);
   const [showAnalysisButton, setShowAnalysisButton] = useState(false); 
-  const [chatHistory, setChatHistory] = useState<HistoryItem[]>([]); // 履歴を保存
+  const [chatHistory, setChatHistory] = useState<HistoryItem[]>([]);
 
   const handleSelectDoctor = (doctor: DoctorType) => {
     setSelectedDoctor(doctor);
     setCurrentMessage(doctor.greeting);
     setTurnCount(0);
     setShowAnalysisButton(false);
-    setChatHistory([]); // リセット
+    setChatHistory([]);
   };
 
   const handlePoisonSubmit = async (text: string, isFinal = false) => {
@@ -38,13 +39,22 @@ export default function Home() {
     const nextTurn = isFinal ? turnCount : turnCount + 1;
     if (!isFinal) setTurnCount(nextTurn);
     
-    // ユーザーの発言を履歴に追加（新しい順なので先頭に入れる）
+    // ユーザーの発言を履歴に追加
     setChatHistory(prev => [{ role: "user", text, turn: nextTurn }, ...prev]);
 
-    if (selectedDoctor.id === 'nagi') {
-      setCurrentMessage("……へぇ、興味深いな。その感情の裏側を分析してやるから、少し待ってろ。");
+    // --- 分析開始時のセリフ切り替え ---
+    if (isFinal) {
+      if (selectedDoctor.id === 'nagi') {
+        setCurrentMessage("……準備はいいか。君の心に溜まった毒を精製して、逃げようのない『真実』を突きつけるね。");
+      } else {
+        setCurrentMessage("……ふふ、ついにこの時が来たわね。あなたの心のすべてを解毒して、たった一つの真実に変えてあげる。");
+      }
     } else {
-      setCurrentMessage("……ふふ、興味深いわ。その感情の裏側を分析してあげるから、少し待っててちょうだい。");
+      if (selectedDoctor.id === 'nagi') {
+        setCurrentMessage("……へぇ、興味深いな。その感情の裏側を分析してやるから、少し待ってろ。");
+      } else {
+        setCurrentMessage("……ふふ、興味深いわ。その感情の裏側を分析してあげるから、少し待っててちょうだい。");
+      }
     }
 
     try {
@@ -61,10 +71,13 @@ export default function Home() {
       });
 
       const data = await response.json();
-      setCurrentMessage(data.text);
       
-      // 博士の回答を履歴に追加
-      setChatHistory(prev => [{ role: "doctor", text: data.text, turn: nextTurn }, ...prev]);
+      // 1. 2. 3. や 1、 2、 の前で改行を入れる整形処理
+      // すでに改行がある場合を考慮しつつ、読みやすくするわ
+      const formattedText = data.text.replace(/(\d+[\.、])/g, '\n$1').trim();
+      setCurrentMessage(formattedText);
+      
+      setChatHistory(prev => [{ role: "doctor", text: formattedText, turn: nextTurn }, ...prev]);
 
       if (nextTurn >= 3 && !isFinal) {
         setShowAnalysisButton(true);
@@ -115,26 +128,34 @@ export default function Home() {
             className="flex flex-col items-center space-y-10 w-full max-w-4xl pb-20"
           >
             <DoctorPortrait doctor={selectedDoctor} />
-            <MessageWindow text={currentMessage} />
             
-            {!showAnalysisButton ? (
-              <InputForm onSubmit={(text) => handlePoisonSubmit(text)} accentColor={selectedDoctor.accentColor} />
-            ) : (
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center space-y-6 w-full max-w-md">
-                <button 
-                  onClick={() => handlePoisonSubmit("これまでの成分を元に、最終的な真実を提示してちょうだい。", true)}
-                  className="w-full px-10 py-5 rounded-xl border bg-white/10 hover:bg-white/20 transition-all text-sm tracking-[0.2em] font-bold shadow-lg shadow-white/5"
-                  style={{ borderColor: selectedDoctor.accentColor }}
-                >
-                  最終的な真実を抽出する
-                </button>
-                <button onClick={() => setShowAnalysisButton(false)} className="text-xs text-slate-500 hover:text-white transition-colors uppercase tracking-[0.3em] border-b border-white/10 hover:border-white/40 pb-1">
-                  まだ吐き出したい毒がある
-                </button>
-              </motion.div>
-            )}
+            {/* 改行を有効にするために whitespace-pre-wrap を付与 */}
+            <div className="whitespace-pre-wrap w-full flex justify-center">
+              <MessageWindow text={currentMessage} />
+            </div>
+            
+            <div className="w-full max-w-2xl min-h-[160px] flex items-center justify-center">
+              {isLoading ? (
+                <AnalyzingView accentColor={selectedDoctor.accentColor} />
+              ) : !showAnalysisButton ? (
+                <InputForm onSubmit={(text) => handlePoisonSubmit(text)} accentColor={selectedDoctor.accentColor} />
+              ) : (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center space-y-6 w-full max-w-md">
+                  <button 
+                    onClick={() => handlePoisonSubmit("これまでの成分を元に、最終的な真実を提示してちょうだい。", true)}
+                    className="w-full px-10 py-5 rounded-xl border bg-white/10 hover:bg-white/20 transition-all text-sm tracking-[0.2em] font-bold shadow-lg shadow-white/5"
+                    style={{ borderColor: selectedDoctor.accentColor }}
+                  >
+                    最終的な真実を抽出する
+                  </button>
+                  <button onClick={() => setShowAnalysisButton(false)} className="text-xs text-slate-500 hover:text-white transition-colors uppercase tracking-[0.3em] border-b border-white/10 hover:border-white/40 pb-1">
+                    まだ吐き出したい毒がある
+                  </button>
+                </motion.div>
+              )}
+            </div>
 
-            {/* --- ここから対話履歴エリア --- */}
+            {/* 対話履歴エリア */}
             <div className="w-full space-y-8 mt-16 pt-10 border-t border-white/5">
               <h2 className="text-center text-[10px] tracking-[0.5em] text-white/30 uppercase font-serif">対話履歴</h2>
               <div className="space-y-6">
@@ -148,11 +169,13 @@ export default function Home() {
                     <span className="text-[9px] tracking-widest text-slate-600 mb-2 uppercase">
                       {item.role === 'user' ? `Your Toxicity #${item.turn}` : `Dr.${selectedDoctor.name}'s Insight`}
                     </span>
-                    <div className={`max-w-[80%] p-4 rounded-2xl text-xs leading-relaxed tracking-wider ${
+                    <div className={`max-w-[80%] p-4 rounded-2xl text-xs leading-relaxed tracking-wider whitespace-pre-wrap ${
                       item.role === 'user' 
                         ? 'bg-white/5 text-slate-400 border border-white/5 rounded-tr-none' 
                         : 'bg-indigo-500/5 text-indigo-200 border border-indigo-500/10 rounded-tl-none'
-                    }`}>
+                    }`}
+                    style={item.role === 'doctor' ? { color: selectedDoctor.accentColor + 'cc', borderColor: selectedDoctor.accentColor + '33' } : {}}
+                    >
                       {item.text}
                     </div>
                   </motion.div>
