@@ -23,6 +23,7 @@ export default function Home() {
   const [turnCount, setTurnCount] = useState(0);
   const [showAnalysisButton, setShowAnalysisButton] = useState(false); 
   const [chatHistory, setChatHistory] = useState<HistoryItem[]>([]);
+  const [isFinal, setIsFinalState] = useState(false);
 
   const handleSelectDoctor = (doctor: DoctorType) => {
     setSelectedDoctor(doctor);
@@ -30,20 +31,47 @@ export default function Home() {
     setTurnCount(0);
     setShowAnalysisButton(false);
     setChatHistory([]);
+    setIsFinalState(false);
   };
 
-  const handlePoisonSubmit = async (text: string, isFinal = false) => {
+  // SNSシェア用URL生成（【要約】を抽出）
+  const getShareUrl = (doctorName: string, resultText: string) => {
+    let summary = "";
+
+    // 「【要約】」という文字列が含まれているか確認
+    if (resultText.includes("【要約】")) {
+      // 「【要約】」以降のテキストを取得し、さらに「【詳細分析】」があればその前までを切り出す
+      summary = resultText.split("【要約】")[1].split("【詳細分析】")[0];
+    } else {
+      // もし【要約】タグがなかった時のためのフォールバック
+      summary = resultText;
+    }
+
+    // 改行をスペースに変換し、余計な空白を削除
+    summary = summary.replace(/\n/g, " ").trim();
+
+    // 60文字以内のサマリーを作成
+    if (summary.length > 60) {
+      summary = summary.slice(0, 60) + "...";
+    }
+
+    const tweetText = `【TOXIC INSIGHT LAB 分析報告】\n分析官：Dr.${doctorName}\n「${summary}」\n\n心の毒から抽出された真実はこちら。`;
+    const url = "https://www.toxic-insight.com/";
+    const hashtags = "TOXIC_INSIGHT_LAB,AI診断";
+
+    return `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(url)}&hashtags=${encodeURIComponent(hashtags)}`;
+  };
+
+  const handlePoisonSubmit = async (text: string, isFinalSubmit = false) => {
     if (!selectedDoctor) return;
     
     setIsLoading(true);
-    const nextTurn = isFinal ? turnCount : turnCount + 1;
-    if (!isFinal) setTurnCount(nextTurn);
+    const nextTurn = isFinalSubmit ? turnCount : turnCount + 1;
+    if (!isFinalSubmit) setTurnCount(nextTurn);
     
-    // ユーザーの発言を履歴に追加
     setChatHistory(prev => [{ role: "user", text, turn: nextTurn }, ...prev]);
 
-    // --- 分析開始時のセリフ切り替え ---
-    if (isFinal) {
+    if (isFinalSubmit) {
       if (selectedDoctor.id === 'nagi') {
         setCurrentMessage("……準備はいいか。君の心に溜まった毒を精製して、逃げようのない『真実』を突きつけるね。");
       } else {
@@ -51,7 +79,7 @@ export default function Home() {
       }
     } else {
       if (selectedDoctor.id === 'nagi') {
-        setCurrentMessage("……へぇ、興味深いな。その感情の裏側を分析してやるから、少し待ってろ。");
+        setCurrentMessage("……へぇ、興味興味深いな。その感情の裏側を分析してやるから、少し待ってろ。");
       } else {
         setCurrentMessage("……ふふ、興味深いわ。その感情の裏側を分析してあげるから、少し待っててちょうだい。");
       }
@@ -66,24 +94,27 @@ export default function Home() {
           doctorName: selectedDoctor.name,
           doctorRole: selectedDoctor.role,
           turnCount: nextTurn,
-          isFinalAnalysis: isFinal 
+          isFinalAnalysis: isFinalSubmit 
         }),
       });
 
       const data = await response.json();
       
-      // 1. 2. 3. や 1、 2、 の前で改行を入れる整形処理
-      // すでに改行がある場合を考慮しつつ、読みやすくするわ
-      const formattedText = data.text.replace(/(\d+[\.、])/g, '\n$1').trim();
+      // テキストの整形
+      const formattedText = data.text
+        .replace("【詳細分析】", "\n\n━━━━━━━━━━━━━━━\n【詳細分析】\n")
+        .replace(/(\d+[\.、])/g, '\n$1')
+        .trim();
+        
       setCurrentMessage(formattedText);
-      
       setChatHistory(prev => [{ role: "doctor", text: formattedText, turn: nextTurn }, ...prev]);
 
-      if (nextTurn >= 3 && !isFinal) {
+      if (nextTurn >= 3 && !isFinalSubmit) {
         setShowAnalysisButton(true);
       }
-      if (isFinal) {
+      if (isFinalSubmit) {
         setShowAnalysisButton(false);
+        setIsFinalState(true);
       }
     } catch (error) {
       setCurrentMessage("あら、毒が強すぎて分析器がエラーを起こしたみたい。もう一度試して？");
@@ -96,13 +127,7 @@ export default function Home() {
     <main className="flex flex-col items-center min-h-screen p-6 bg-lab-gradient text-slate-200 overflow-y-auto">
       <AnimatePresence mode="wait">
         {!selectedDoctor ? (
-          <motion.div 
-            key="selection"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="flex flex-col items-center max-w-2xl w-full text-center space-y-16 mt-20"
-          >
+          <motion.div key="selection" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} className="flex flex-col items-center max-w-2xl w-full text-center space-y-16 mt-20">
             <div className="space-y-4">
               <h1 className="text-3xl md:text-5xl font-serif tracking-[0.3em] text-white/80">TOXIC INSIGHT LAB</h1>
               <p className="text-xs tracking-[0.4em] text-indigo-400/80 uppercase">心の毒をはいて、今の深層心理を知ろう</p>
@@ -121,26 +146,37 @@ export default function Home() {
             </div>
           </motion.div>
         ) : (
-          <motion.div 
-            key="lab"
-            initial={{ opacity: 0, scale: 1.05 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center space-y-10 w-full max-w-4xl pb-20"
-          >
+          <motion.div key="lab" initial={{ opacity: 0, scale: 1.05 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center space-y-10 w-full max-w-4xl pb-20">
             <DoctorPortrait doctor={selectedDoctor} />
             
-            {/* 改行を有効にするために whitespace-pre-wrap を付与 */}
             <div className="whitespace-pre-wrap w-full flex justify-center">
               <MessageWindow text={currentMessage} />
             </div>
             
-            <div className="w-full max-w-2xl min-h-[160px] flex items-center justify-center">
+            <div className="w-full max-w-2xl min-h-[160px] flex items-center justify-center flex-col">
               {isLoading ? (
                 <AnalyzingView accentColor={selectedDoctor.accentColor} />
               ) : !showAnalysisButton ? (
-                <InputForm onSubmit={(text) => handlePoisonSubmit(text)} accentColor={selectedDoctor.accentColor} />
+                <>
+                  <InputForm onSubmit={(text) => handlePoisonSubmit(text)} accentColor={selectedDoctor.accentColor} />
+                  {isFinal && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-8 flex flex-col items-center">
+                      <a
+                        href={getShareUrl(selectedDoctor.name, currentMessage)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 px-6 py-3 rounded-full bg-white/5 border border-white/20 hover:bg-white/10 hover:border-white/40 transition-all group"
+                      >
+                        <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24">
+                          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                        </svg>
+                        <span className="text-xs tracking-widest font-bold">真実を世界に晒す</span>
+                      </a>
+                    </motion.div>
+                  )}
+                </>
               ) : (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center space-y-6 w-full max-w-md">
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center space-y-6 w-full max-md">
                   <button 
                     onClick={() => handlePoisonSubmit("これまでの成分を元に、最終的な真実を提示してちょうだい。", true)}
                     className="w-full px-10 py-5 rounded-xl border bg-white/10 hover:bg-white/20 transition-all text-sm tracking-[0.2em] font-bold shadow-lg shadow-white/5"
@@ -155,26 +191,21 @@ export default function Home() {
               )}
             </div>
 
-            {/* 対話履歴エリア */}
             <div className="w-full space-y-8 mt-16 pt-10 border-t border-white/5">
               <h2 className="text-center text-[10px] tracking-[0.5em] text-white/30 uppercase font-serif">対話履歴</h2>
               <div className="space-y-6">
                 {chatHistory.map((item, index) => (
-                  <motion.div 
-                    key={index} 
-                    initial={{ opacity: 0, x: -10 }} 
-                    animate={{ opacity: 1, x: 0 }}
-                    className={`flex flex-col ${item.role === 'user' ? 'items-end' : 'items-start'}`}
-                  >
+                  <motion.div key={index} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className={`flex flex-col ${item.role === 'user' ? 'items-end' : 'items-start'}`}>
                     <span className="text-[9px] tracking-widest text-slate-600 mb-2 uppercase">
                       {item.role === 'user' ? `Your Toxicity #${item.turn}` : `Dr.${selectedDoctor.name}'s Insight`}
                     </span>
-                    <div className={`max-w-[80%] p-4 rounded-2xl text-xs leading-relaxed tracking-wider whitespace-pre-wrap ${
-                      item.role === 'user' 
-                        ? 'bg-white/5 text-slate-400 border border-white/5 rounded-tr-none' 
-                        : 'bg-indigo-500/5 text-indigo-200 border border-indigo-500/10 rounded-tl-none'
-                    }`}
-                    style={item.role === 'doctor' ? { color: selectedDoctor.accentColor + 'cc', borderColor: selectedDoctor.accentColor + '33' } : {}}
+                    <div 
+                      className={`max-w-[80%] p-4 rounded-2xl text-xs leading-relaxed tracking-wider whitespace-pre-wrap ${
+                        item.role === 'user' 
+                          ? 'bg-white/5 text-slate-400 border border-white/5 rounded-tr-none' 
+                          : 'bg-indigo-500/5 text-indigo-200 border border-indigo-500/10 rounded-tl-none'
+                      }`}
+                      style={item.role === 'doctor' ? { color: selectedDoctor.accentColor + 'cc', borderColor: selectedDoctor.accentColor + '33' } : {}}
                     >
                       {item.text}
                     </div>
@@ -183,11 +214,11 @@ export default function Home() {
               </div>
             </div>
             
-            {/* 修正した「ラボを退室」ボタン部分 */}
             <button 
               onClick={() => setSelectedDoctor(null)} 
               className="mt-8 text-[10px] text-slate-400 hover:text-white transition-all duration-300 uppercase tracking-[0.5em] border-b border-transparent hover:border-white/40 pb-1"
-            >ラボを退室
+            >
+              ラボを退室
             </button>
           </motion.div>
         )}
