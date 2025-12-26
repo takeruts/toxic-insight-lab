@@ -105,7 +105,7 @@ export default function Home() {
           >
             <div className="space-y-4">
               <h1 className="text-3xl md:text-5xl font-serif tracking-[0.3em] text-white/80">TOXIC INSIGHT LAB</h1>
-              <p className="text-xs tracking-[0.4em] text-indigo-400/80 uppercase">あなたの毒吐きから深層心理を判断します</p>
+              <p className="text-xs tracking-[0.4em] text-indigo-400/80 uppercase">毒をはいて、今の深層心理を知ろう</p>
             </div>
             <div className="space-y-8 w-full">
               <p className="text-sm tracking-widest text-slate-500 italic">あなたの性別を教えて下さい</p>
@@ -184,6 +184,12 @@ export default function Home() {
             </div>
             
             <button onClick={() => setSelectedDoctor(null)} className="mt-8 text-[10px] text-white/20 hover:text-white/60 transition-colors uppercase tracking-[0.5em] border-b border-transparent hover:border-white/20 pb-1">ラボを退室</button>
+            {/* 修正した「ラボを退室」ボタン部分 */}
+            <button 
+              onClick={() => setSelectedDoctor(null)} 
+              className="mt-8 text-[10px] text-slate-400 hover:text-white transition-all duration-300 uppercase tracking-[0.5em] border-b border-transparent hover:border-white/40 pb-1"
+            >ラボを退室
+            </button>
           </motion.div>
         )}
       </AnimatePresence>

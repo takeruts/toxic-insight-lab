@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Toxic Insight Lab",
-  description: "あなたの毒吐きから深層心理を判断します",
+  description: "毒をはいて、今の深層心理を知ろう",
 };
 
 export default function RootLayout({
