@@ -34,17 +34,18 @@ export const InputForm = ({ onSubmit, accentColor = "#6366f1" }: InputFormProps)
     >
       <div className="relative flex items-center">
         <textarea
-          rows={2} // ここで2行分の高さを確保しているわ
+          rows={2}
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="ここに毒をどんどん吐いて！　人には言えないどんな言葉も受け入れます。今の感情をむき出しに、本音、不満、悪口をここに吐き出しましょう…"
-          className="w-full bg-white/5 border-b border-white/20 py-5 px-6 pr-16 rounded-t-xl 
-             focus:outline-none focus:border-white/40 focus:bg-white/10
-             text-slate-200 transition-all duration-500
-             text-sm placeholder:text-[11px] xs:placeholder:text-xs md:placeholder:text-sm
-             placeholder:leading-relaxed placeholder:opacity-50
-             resize-none overflow-hidden" // 自動で伸び縮みさせたい場合は resize-none に
+          className="w-full bg-white/10 border-b border-white/30 py-5 px-6 pr-16 rounded-t-xl 
+             focus:outline-none focus:border-white/50 focus:bg-white/15
+             text-white transition-all duration-500
+             text-sm md:text-base 
+             placeholder:text-slate-300 placeholder:opacity-80 
+             placeholder:leading-relaxed
+             resize-none overflow-hidden" 
         />
         
         {/* 送信ボタン */}

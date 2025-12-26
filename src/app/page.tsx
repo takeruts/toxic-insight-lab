@@ -105,7 +105,7 @@ export default function Home() {
           >
             <div className="space-y-4">
               <h1 className="text-3xl md:text-5xl font-serif tracking-[0.3em] text-white/80">TOXIC INSIGHT LAB</h1>
-              <p className="text-xs tracking-[0.4em] text-indigo-400/80 uppercase">毒をはいて、今の深層心理を知ろう</p>
+              <p className="text-xs tracking-[0.4em] text-indigo-400/80 uppercase">心の毒をはいて、今の深層心理を知ろう</p>
             </div>
             <div className="space-y-8 w-full">
               <p className="text-sm tracking-widest text-slate-500 italic">あなたの性別を教えて下さい</p>
