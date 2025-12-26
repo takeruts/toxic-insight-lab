@@ -64,7 +64,7 @@ export default function Home() {
 
   const handlePoisonSubmit = async (text: string, isFinalSubmit = false) => {
     if (!selectedDoctor) return;
-    
+  
     setIsLoading(true);
     const nextTurn = isFinalSubmit ? turnCount : turnCount + 1;
     if (!isFinalSubmit) setTurnCount(nextTurn);
