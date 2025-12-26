@@ -183,7 +183,6 @@ export default function Home() {
               </div>
             </div>
             
-            <button onClick={() => setSelectedDoctor(null)} className="mt-8 text-[10px] text-white/20 hover:text-white/60 transition-colors uppercase tracking-[0.5em] border-b border-transparent hover:border-white/20 pb-1">ラボを退室</button>
             {/* 修正した「ラボを退室」ボタン部分 */}
             <button 
               onClick={() => setSelectedDoctor(null)} 
