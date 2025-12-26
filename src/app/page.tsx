@@ -129,7 +129,7 @@ export default function Home() {
                   最終的な真実を抽出する
                 </button>
                 <button onClick={() => setShowAnalysisButton(false)} className="text-xs text-slate-500 hover:text-white transition-colors uppercase tracking-[0.3em] border-b border-white/10 hover:border-white/40 pb-1">
-                  まだ吐き出したい澱がある
+                  まだ吐き出したい毒がある
                 </button>
               </motion.div>
             )}

@@ -18,7 +18,7 @@ export const MessageWindow = ({ text }: { text: string }) => {
         
         {/* 装飾：左上のラボ・タグ */}
         <div className="absolute top-0 left-10 -translate-y-1/2 bg-indigo-600 px-3 py-1 rounded-full shadow-lg">
-          <span className="text-[10px] tracking-[0.2em] font-bold text-white uppercase">Analysis Output</span>
+          <span className="text-[10px] tracking-[0.2em] font-bold text-white uppercase">分析官のコメント</span>
         </div>
 
         {/* メッセージ本文：フェードインアニメーション */}
