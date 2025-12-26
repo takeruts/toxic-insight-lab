@@ -38,7 +38,7 @@ export const InputForm = ({ onSubmit, accentColor = "#6366f1" }: InputFormProps)
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="ここに毒をどんどん吐いて！　人には言えないどんな言葉も受け入れます。今の感情をむき出しに、本音、不満、悪口をここに吐き出しましょう…"
+          placeholder="心の底にある毒をどんどん吐いて！　人には言えないどんな言葉も受け入れます。今の感情をむき出しに、本音、不満、悪口をここに吐き出しましょう…"
           className="w-full bg-white/10 border-b border-white/30 py-5 px-6 pr-16 rounded-t-xl 
              focus:outline-none focus:border-white/50 focus:bg-white/15
              text-white transition-all duration-500
