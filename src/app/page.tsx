@@ -72,13 +72,13 @@ export default function Home() {
     setChatHistory(prev => [{ role: "user", text, turn: nextTurn }, ...prev]);
 
     if (isFinalSubmit) {
-      if (selectedDoctor.id === 'nagi') {
+      if (selectedDoctor.id === 'male') {
         setCurrentMessage("……準備はいいか。君の心に溜まった毒を精製して、逃げようのない『真実』を突きつけるね。");
       } else {
         setCurrentMessage("……ふふ、ついにこの時が来たわね。あなたの心のすべてを解毒して、たった一つの真実に変えてあげる。");
       }
     } else {
-      if (selectedDoctor.id === 'nagi') {
+      if (selectedDoctor.id === 'male') {
         setCurrentMessage("……へぇ、興味興味深いな。その感情の裏側を分析してやるから、少し待ってろ。");
       } else {
         setCurrentMessage("……ふふ、興味深いわ。その感情の裏側を分析してあげるから、少し待っててちょうだい。");

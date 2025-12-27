@@ -4,7 +4,7 @@
  * ドクターの基本構造を定義する型よ
  */
 export type DoctorType = {
-  id: 'nagi' | 'ryo';
+  id: 'male' | 'female';
   name: string;
   role: string;
   image: string;
@@ -17,16 +17,16 @@ export type DoctorType = {
  */
 export const DOCTORS: Record<string, DoctorType> = {
   nagi: {
-    id: 'nagi',
-    name: "ナギ",
+    id: 'male',
+    name: "れん",
     role: "Senior Analyst / Shadow Specialist",
     image: "/dr_male.png",
     greeting: "よう。君の中の素敵な『毒』、僕に預けてみないか？ 綺麗に分析するよ。",
     accentColor: "#06b6d4", // cyan-500
   },
   ryo: {
-    id: 'ryo',
-    name: "リョウ",
+    id: 'female',
+    name: "りん",
     role: "Chief Director / Psycho-Architect",
     image: "/dr_female.png",
     greeting: "いらっしゃい。あなたの素敵な『毒』、詳しく聞かせてくださるかしら？ 遠慮はいらないわ。",
